@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'barberpangling@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidBooking(data) {
+      return data.keys().hasAll([
+        'bookingCode', 'branchId', 'barberId', 'serviceId', 
+        'customerName', 'customerPhone', 'date', 'startTime', 'endTime', 'status'
+      ]) &&
+      data.bookingCode is string && data.bookingCode.size() <= 32 &&
+      data.branchId is string && data.branchId.size() <= 128 &&
+      data.barberId is string && data.barberId.size() <= 128 &&
+      data.serviceId is string && data.serviceId.size() <= 128 &&
+      data.customerName is string && data.customerName.size() > 0 && data.customerName.size() <= 100 &&
+      data.customerPhone is string && data.customerPhone.size() >= 8 && data.customerPhone.size() <= 30 &&
+      data.date is string && data.date.size() == 10 &&
+      data.startTime is string && data.startTime.size() == 5 &&
+      data.endTime is string && data.endTime.size() == 5 &&
+      data.status in ['confirmed', 'pending_payment', 'completed', 'cancelled', 'no-show'] &&
+      (!('notes' in data) || (data.notes is string && data.notes.size() <= 500));
+    }
+
+    // Cabang / Branches
+    match /branches/{branchId} {
+      allow read: if isValidId(branchId);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Layanan / Services
+    match /services/{serviceId} {
+      allow read: if isValidId(serviceId);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Barbers
+    match /barbers/{barberId} {
+      allow read: if isValidId(barberId);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Bookings
+    match /bookings/{bookingId} {
+      // Public can lookup a single booking by ID or create a valid booking
+      allow get: if isValidId(bookingId);
+      allow list: if isAdmin();
+      allow create: if isValidId(bookingId) && isValidBooking(request.resource.data) && (request.resource.data.status in ['confirmed', 'pending_payment']);
+      allow update, delete: if isAdmin();
+    }
+
+    // Admins
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

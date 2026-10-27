@@ -1,0 +1,119 @@
+{
+  "entities": {
+    "Branch": {
+      "title": "Branch",
+      "description": "Pangling Hairstudio branch locations in Kabupaten Tegal",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "address": { "type": "string", "maxLength": 250 },
+        "whatsapp": { "type": "string", "maxLength": 30 },
+        "openTime": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "closeTime": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "slotIntervalMin": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "address", "whatsapp", "openTime", "closeTime", "isActive"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Barbershop haircuts, styling, and chemical treatments",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "enum": ["haircut", "treatment", "styling", "grooming"] },
+        "price": { "type": "number" },
+        "isPriceStartingFrom": { "type": "boolean" },
+        "durationMinutes": { "type": "number" },
+        "description": { "type": "string", "maxLength": 300 },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "category", "price", "durationMinutes", "isActive"]
+    },
+    "Barber": {
+      "title": "Barber",
+      "description": "Professional hairstylist at Pangling Hairstudio",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 60 },
+        "branchId": { "type": "string", "maxLength": 128 },
+        "specialties": { "type": "string", "maxLength": 200 },
+        "active": { "type": "boolean" },
+        "workDays": { "type": "array" },
+        "workStart": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "workEnd": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "breakStart": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "breakEnd": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "branchId", "active", "workStart", "workEnd"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Customer reservation slot",
+      "type": "object",
+      "properties": {
+        "bookingCode": { "type": "string", "maxLength": 32, "pattern": "^PLS-[0-9]{6}$" },
+        "branchId": { "type": "string", "maxLength": 128 },
+        "branchName": { "type": "string", "maxLength": 100 },
+        "barberId": { "type": "string", "maxLength": 128 },
+        "barberName": { "type": "string", "maxLength": 60 },
+        "serviceId": { "type": "string", "maxLength": 128 },
+        "serviceName": { "type": "string", "maxLength": 100 },
+        "servicePrice": { "type": "number" },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerPhone": { "type": "string", "maxLength": 30 },
+        "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "startTime": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "endTime": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+        "status": { "type": "string", "enum": ["confirmed", "pending_payment", "completed", "cancelled", "no-show"] },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["bookingCode", "branchId", "barberId", "serviceId", "customerName", "customerPhone", "date", "startTime", "endTime", "status"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Store admin and manager role permissions",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["superadmin", "manager"] },
+        "name": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/branches/{branchId}": {
+      "schema": "Branch",
+      "description": "Public branch locations and operational hours"
+    },
+    "/services/{serviceId}": {
+      "schema": "Service",
+      "description": "Barbershop hair treatments, styling, and cut options"
+    },
+    "/barbers/{barberId}": {
+      "schema": "Barber",
+      "description": "Barber profiles and availability"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "All customer reservations"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Authorized administrators"
+    }
+  }
+}

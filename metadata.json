@@ -1,0 +1,8 @@
+{
+  "name": "Remix Pangling Hairstudio - Online Booking",
+  "description": "Website booking online resmi PANGLING HAIRSTUDIO Kabupaten Tegal. Pesan jadwal potong rambut dan treatment dengan konfirmasi otomatis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
